@@ -1,5 +1,6 @@
 import streamlit as st
 from openai import OpenAI
+import tiktoken
 import sqlite3
 import numpy as np
 import pandas as pd
@@ -43,12 +44,40 @@ def save_embedding(filename: str, content: str, embedding: list):
     conn.commit()
     conn.close()
 
+def num_tokens_from_string(string):
+    """Returns the number of tokens in a text string."""
+    encoding = tiktoken.get_encoding("cl100k_base")
+    num_tokens = len(encoding.encode(string))
+    return num_tokens
+
+def chunk_text(text, max_tokens=200):
+    words = text.split()
+    chunks = []
+    current_chunk = []
+
+    for word in words:
+        temp_chunk = current_chunk + [word]
+        temp_text = " ".join(temp_chunk)
+        new_token_count = num_tokens_from_string(temp_text)
+        
+        if new_token_count > max_tokens:
+            chunks.append(" ".join(current_chunk))
+            current_chunk = [word]
+        else:
+            current_chunk.append(word)
+
+    if current_chunk:
+        chunks.append(" ".join(current_chunk))
+    
+    return chunks
+
 # Helper function to extract text from PDF
 def extract_pdf_data(file: BytesIO):
+    all_text = ""
     with pdfplumber.open(file) as pdf:
-        first_page = pdf.pages[0]
-        text = first_page.extract_text()
-        return text
+        for page in pdf.pages:
+            all_text += page.extract_text() + "\n"  # Concatenate the text of each page
+    return all_text
 
 # Helper function to calculate cosine similarity
 def cosine_similarity(vec1, vec2):
@@ -61,25 +90,26 @@ def cosine_similarity(vec1, vec2):
 def search_most_similar_embedding(user_embedding):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    cursor.execute('SELECT content, embedding FROM embeddings')
+    cursor.execute('SELECT DISTINCT content, embedding FROM embeddings')
     results = cursor.fetchall()
     conn.close()
 
     # Convert user embedding and stored embeddings into numpy arrays
     user_embedding = np.array(user_embedding)
 
-    max_similarity = -1
-    most_similar_content = None
+    similarities = []
 
     for content, embedding_blob in results:
         embedding = np.frombuffer(embedding_blob, dtype=np.float32)
         similarity = cosine_similarity(user_embedding, embedding)
+        similarities.append((content, similarity))
+    
+    
+    # Sort by similarity in descending order and select top 3
+    similarities.sort(key=lambda x: x[1], reverse=True)
+    top_similar_contents = [content for content, sim in similarities[:2]]
 
-        if similarity > max_similarity:
-            max_similarity = similarity
-            most_similar_content = content
-
-    return most_similar_content, max_similarity
+    return top_similar_contents
 
 # Streamlit app
 st.title("AI Model Interaction Platform")
@@ -101,15 +131,17 @@ if uploaded_file:
         content = None
 
     if content:
-        # Generate embedding using OpenAI API
-        response = client.embeddings.create(
-            input=content,
-            model="text-embedding-ada-002"
-        )
-        embedding = response.data[0].embedding
+        chunks = chunk_text(content, max_tokens=500)
+        for chunk in chunks:
+            # Generate embedding using OpenAI API
+            response = client.embeddings.create(
+                input=chunk,
+                model="text-embedding-ada-002"
+            )
+            embedding = response.data[0].embedding
 
-        # Save the embedding and content to SQLite
-        save_embedding(uploaded_file.name, content, embedding)
+            # Save the embedding and content to SQLite
+            save_embedding(uploaded_file.name, chunk, embedding)
 
         st.success("File uploaded and embeddings saved successfully.")
 
@@ -126,7 +158,7 @@ if st.button("Send"):
         user_embedding = response.data[0].embedding
 
         # Search for the most similar embedding in the database
-        most_similar_content, similarity = search_most_similar_embedding(user_embedding)
+        most_similar_content = search_most_similar_embedding(user_embedding)
 
         response_placeholder = st.empty()
 
@@ -146,6 +178,5 @@ if st.button("Send"):
                     response_text += chunk.choices[0].delta.content
                     response_placeholder.write(response_text, unsafe_allow_html=True)
                     
-            st.write("Similarity Score:", similarity)
         else:
             st.error("No similar content found in embeddings.")
