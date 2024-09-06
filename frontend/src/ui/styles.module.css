@@ -1,0 +1,186 @@
+/* Register Key */
+.createModel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f9fafb;
+}
+
+.createModelForm {
+  width: 40%;
+  min-width: 400px;
+  padding: 80px 30px 50px 30px;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.registerKeyLabel {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.registerKeyInput {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.registerKeyLink {
+  display: block;
+  margin-bottom: 20px;
+  color: #1a73e8;
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.registerKeyLink:hover {
+  color: #0b5ed7;
+  text-decoration: underline;
+}
+
+.registerKeyButton {
+  width: 100%;
+}
+
+/* Upload File */
+.uploadFileSelectButton {
+  width: 100%;
+}
+
+.uploadFileUploadButton {
+  width: 100%;
+  padding: 8px 16px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+/* Chat AI */
+.chatAi {
+  display: flex;
+  height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.chatAiModelList {
+  width: 25%;
+  max-width: 300px;
+  background-color: #f1f3f6;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  border-right: 1px solid #e9dfdf;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all 0.3s ease;
+}
+
+.chatAiModelListModal {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 200px;
+  height: 100vh;
+  background-color: #f1f3f6;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  border-right: 1px solid #e9dfdf;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.chatAiIcon {
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.chatAiModelCreateButton {
+  width: 100%;
+  margin: 10px 0;
+}
+
+.chatAiModelListItem {
+  width: 100%;
+  margin: 8px 0;
+}
+
+.ModelLists {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ModelLists li {
+  margin-bottom: 3px;
+}
+
+.ModelLists li:last-child {
+  margin-bottom: 0;
+}
+
+.chatAiContent {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  position: relative;
+}
+
+.chatAiMessageTitle {
+  padding: 20px;
+  background-color: #f1f3f6;
+  border-top: 1px solid #dcdcdc;
+  display: flex;
+  justify-content: space-between;
+}
+
+.modelName {
+  /* Add specific styles if needed */
+}
+
+.profile {
+  /* Add specific styles if needed */
+}
+
+.chatAiMessageList {
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #f9fafb;
+}
+
+.chatAiMessageInput {
+  position: absolute;
+  padding: 10px;
+  background-color: #f1f3f6;
+  border: 1px solid #dcdcdc;
+  display: flex;
+  align-items: center;
+  border-radius: 20px;
+  left: 0;
+  right: 0;
+  margin: 0 20px;
+  bottom: 30px;
+}
+
+.chatAiMessageInput input {
+  flex-grow: 1;
+  padding: 12px;
+  border: 1px solid #dcdcdc;
+  border-radius: 4px;
+  font-size: 16px;
+  margin-right: 10px;
+  display: flex;
+  gap: 20px;
+}
